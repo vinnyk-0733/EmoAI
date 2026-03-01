@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
 import { Brain, Heart, Sparkles, Shield, Wifi, WifiOff, Loader2, RefreshCw } from 'lucide-react';
 import EmotionIndicator from './EmotionIndicator';
+import MiniAILogo from './MiniAILogo';
 import ThemeSwitcher from './ThemeSwitcher';
 import { Button } from '@/components/ui/button';
 
-const ConnectionStatus = ({ 
-  isConnected, 
+const ConnectionStatus = ({
+  isConnected,
   isConnecting,
   onReconnect,
 }) => {
@@ -65,11 +66,11 @@ const ConnectionStatus = ({
   );
 };
 
-const ChatHeader = ({ 
-  emotion, 
+const ChatHeader = ({
+  emotion,
   mentalState,
   emotionConfidence,
-  theme, 
+  theme,
   onThemeChange,
   isConnected = false,
   isConnecting = false,
@@ -97,15 +98,7 @@ const ChatHeader = ({
         <div className="flex items-center justify-between">
           {/* Left: Logo and title */}
           <div className="flex items-center gap-3">
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="relative"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center neon-glow">
-                <Brain className="w-5 h-5 text-primary-foreground" />
-              </div>
-            </motion.div>
+            <MiniAILogo size={40} />
             <div>
               <h1 className="text-lg font-bold gradient-text">Emotion AI</h1>
               <p className="text-xs text-muted-foreground">Healthcare Assistant</p>
@@ -136,7 +129,7 @@ const ChatHeader = ({
                 <span className="text-xs text-muted-foreground">Detected</span>
                 <span className="text-sm font-medium capitalize">{emotion}</span>
                 {mentalState && (
-                  <motion.span 
+                  <motion.span
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-xs text-primary font-medium"

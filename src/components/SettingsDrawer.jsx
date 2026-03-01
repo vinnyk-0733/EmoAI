@@ -1,10 +1,9 @@
-import { useRef, useCallback } from 'react';
-import { Settings, Palette, Camera, CameraOff, Eye, Type, Volume2, VolumeX, Check, Moon, Sun, RotateCcw, Mic } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { Settings, Palette, Camera, CameraOff, Eye, Type, Volume2, VolumeX, Check, Moon, Sun, RotateCcw, Mic, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { THEMES } from '@/types/theme';
 import { useAccessibility } from '@/context/AccessibilityContext';
@@ -28,23 +27,42 @@ const SettingCard = ({ icon, label, description, htmlFor, children }) => (
 
 const SettingsDrawer = ({ currentTheme, onThemeChange, cameraOn, onCameraToggle, voices = [], selectedVoiceURI, onVoiceChange, open, onOpenChange }) => {
   const { settings, updateSetting, resetSettings } = useAccessibility();
-  const themeGridRef = useRef(null);
+  const [themeExpanded, setThemeExpanded] = useState(false);
+  const [voiceExpanded, setVoiceExpanded] = useState(false);
+  const [themeSearch, setThemeSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const themeRef = useRef(null);
+  const voiceRef = useRef(null);
 
-  const handleThemeKeyDown = useCallback((e) => {
-    const buttons = themeGridRef.current?.querySelectorAll('button');
-    if (!buttons) return;
-    const currentIndex = Array.from(buttons).findIndex((btn) => btn === document.activeElement);
-    let nextIndex = currentIndex;
-    switch (e.key) {
-      case 'ArrowRight': nextIndex = (currentIndex + 1) % buttons.length; e.preventDefault(); break;
-      case 'ArrowLeft': nextIndex = (currentIndex - 1 + buttons.length) % buttons.length; e.preventDefault(); break;
-      case 'ArrowDown': nextIndex = Math.min(currentIndex + 2, buttons.length - 1); e.preventDefault(); break;
-      case 'ArrowUp': nextIndex = Math.max(currentIndex - 2, 0); e.preventDefault(); break;
-      case 'Home': nextIndex = 0; e.preventDefault(); break;
-      case 'End': nextIndex = buttons.length - 1; e.preventDefault(); break;
-      default: return;
-    }
-    buttons[nextIndex]?.focus();
+  const currentThemeData = THEMES.find(t => t.id === currentTheme);
+  const currentVoiceName = voices.find(v => v.voiceURI === selectedVoiceURI)?.name || 'System Default';
+
+  // 500ms debounce for theme search
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(themeSearch), 500);
+    return () => clearTimeout(timer);
+  }, [themeSearch]);
+
+  const filteredThemes = useMemo(() => {
+    if (!debouncedSearch.trim()) return THEMES;
+    const q = debouncedSearch.toLowerCase();
+    return THEMES.filter(t => t.name.toLowerCase().includes(q));
+  }, [debouncedSearch]);
+
+  // Click outside to close theme/voice dropdowns
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (themeRef.current && !themeRef.current.contains(e.target)) {
+        setThemeExpanded(false);
+        setThemeSearch('');
+        setDebouncedSearch('');
+      }
+      if (voiceRef.current && !voiceRef.current.contains(e.target)) {
+        setVoiceExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -57,46 +75,121 @@ const SettingsDrawer = ({ currentTheme, onThemeChange, cameraOn, onCameraToggle,
       <SheetContent side="right" className="w-[340px] sm:w-[400px] overflow-y-auto no-scrollbar bg-card border-border z-[150] fixed top-0 right-0 h-full transition-transform duration-500 ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right" aria-describedby="settings-description">
         <SheetHeader className="mb-6"><SheetTitle className="text-xl gradient-text">Settings</SheetTitle><SheetDescription id="settings-description">Customize your experience with themes, camera, and accessibility options.</SheetDescription></SheetHeader>
         <div className="space-y-8" role="main">
-          <section aria-labelledby="theme-heading">
+
+          {/* Theme Section */}
+          <section aria-labelledby="theme-heading" ref={themeRef}>
             <div className="flex items-center gap-2 mb-4"><Palette className="h-5 w-5 text-primary" /><h3 id="theme-heading" className="text-base font-semibold text-foreground">Theme</h3></div>
-            <div className="space-y-3" role="radiogroup" aria-labelledby="theme-heading">
-              {THEMES.map((theme) => (
-                <SettingCard
-                  key={theme.id}
-                  icon={<span className="text-xl">{theme.icon}</span>}
-                  label={theme.name}
-                  description={theme.description}
-                  htmlFor={`theme-${theme.id}`}
-                >
-                  <Switch
-                    id={`theme-${theme.id}`}
-                    checked={currentTheme === theme.id}
-                    onCheckedChange={(checked) => {
-                      if (checked) onThemeChange(theme.id);
-                    }}
-                    aria-label={`Select ${theme.name} theme`}
-                    role="radio"
-                    aria-checked={currentTheme === theme.id}
-                  />
-                </SettingCard>
-              ))}
+
+            {/* Current theme / search input - entire div is clickable */}
+            <div
+              onClick={() => { if (!themeExpanded) { setThemeExpanded(true); setThemeSearch(''); setDebouncedSearch(''); } }}
+              className={`w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-secondary/30 transition-colors ${!themeExpanded ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
+            >
+              <span className="text-lg flex-shrink-0">{currentThemeData?.icon}</span>
+              {themeExpanded ? (
+                <input
+                  type="text"
+                  placeholder="Search themes..."
+                  value={themeSearch}
+                  onChange={(e) => setThemeSearch(e.target.value)}
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <span className="flex-1 text-left text-sm font-medium text-foreground">{currentThemeData?.name}</span>
+              )}
+              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${themeExpanded ? 'rotate-180' : ''}`} />
             </div>
+
+            {/* Expandable theme list */}
+            {themeExpanded && (
+              <div className="mt-2 rounded-xl border border-border bg-secondary/20">
+                <div className="max-h-[260px] overflow-y-auto no-scrollbar">
+                  {filteredThemes.length === 0 ? (
+                    <div className="px-3 py-4 text-sm text-muted-foreground text-center">No themes found</div>
+                  ) : (
+                    filteredThemes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => {
+                          onThemeChange(theme.id);
+                          setThemeExpanded(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 py-2 transition-colors hover:bg-secondary/50 ${currentTheme === theme.id ? 'bg-primary/10 border-l-2 border-l-primary' : 'border-l-2 border-l-transparent'
+                          }`}
+                      >
+                        <span className="text-sm flex-shrink-0">{theme.icon}</span>
+                        <span className="flex-1 text-left text-sm font-medium text-foreground truncate">{theme.name}</span>
+                        {theme.colors && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: theme.colors.bg }} />
+                            <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: theme.colors.primary }} />
+                            <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: theme.colors.accent }} />
+                          </div>
+                        )}
+                        {currentTheme === theme.id && (
+                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </section>
+
+          {/* Camera Section */}
           <section aria-labelledby="camera-heading">
             <div className="flex items-center gap-2 mb-4"><Camera className="h-5 w-5 text-primary" /><h3 id="camera-heading" className="text-base font-semibold text-foreground">Camera</h3></div>
             <SettingCard icon={cameraOn ? <Camera className="h-5 w-5 text-primary" /> : <CameraOff className="h-5 w-5 text-muted-foreground" />} label="Emotion Detection Camera" description="Enable facial emotion recognition" htmlFor="camera-toggle"><div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">{cameraOn ? 'On' : 'Off'}</span><Switch id="camera-toggle" checked={cameraOn} onCheckedChange={onCameraToggle} aria-describedby="camera-toggle-desc" /></div></SettingCard>
           </section>
+
+          {/* Voice Section - custom expandable list */}
           {voices.length > 0 && onVoiceChange && (
-            <section aria-labelledby="voice-heading">
+            <section aria-labelledby="voice-heading" ref={voiceRef}>
               <div className="flex items-center gap-2 mb-4"><Mic className="h-5 w-5 text-primary" /><h3 id="voice-heading" className="text-base font-semibold text-foreground">Voice</h3></div>
-              <div className="glass-card p-4 rounded-xl focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background" role="group" aria-labelledby="voice-select-label">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3"><Volume2 className="h-5 w-5 text-muted-foreground" /><div className="flex-1"><Label id="voice-select-label" htmlFor="voice-select" className="text-sm font-medium">Text-to-Speech Voice</Label><p id="voice-select-desc" className="text-xs text-muted-foreground">Choose the voice for AI responses</p></div></div>
-                  <Select value={selectedVoiceURI || 'default'} onValueChange={(value) => onVoiceChange(value === 'default' ? '' : value)}><SelectTrigger id="voice-select" className="w-full" aria-describedby="voice-select-desc"><SelectValue placeholder="Select a voice" /></SelectTrigger><SelectContent><SelectItem value="default">System Default</SelectItem>{voices.map((voice) => <SelectItem key={voice.voiceURI} value={voice.voiceURI}>{voice.name} ({voice.lang})</SelectItem>)}</SelectContent></Select>
+
+              <div
+                onClick={() => { if (!voiceExpanded) setVoiceExpanded(true); }}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/30 transition-colors ${!voiceExpanded ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Volume2 className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground truncate">{currentVoiceName}</div>
+                    <div className="text-xs text-muted-foreground">Text-to-Speech Voice</div>
+                  </div>
                 </div>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${voiceExpanded ? 'rotate-180' : ''}`} />
               </div>
+
+              {voiceExpanded && (
+                <div className="mt-2 max-h-[220px] overflow-y-auto rounded-xl border border-border bg-secondary/20 no-scrollbar">
+                  <button
+                    onClick={() => { onVoiceChange(''); setVoiceExpanded(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-secondary/50 ${!selectedVoiceURI ? 'bg-primary/10 border-l-2 border-l-primary' : 'border-l-2 border-l-transparent'
+                      }`}
+                  >
+                    <span className="text-sm text-foreground">System Default</span>
+                    {!selectedVoiceURI && <Check className="h-4 w-4 text-primary ml-auto" />}
+                  </button>
+                  {voices.map((voice) => (
+                    <button
+                      key={voice.voiceURI}
+                      onClick={() => { onVoiceChange(voice.voiceURI); setVoiceExpanded(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-secondary/50 ${selectedVoiceURI === voice.voiceURI ? 'bg-primary/10 border-l-2 border-l-primary' : 'border-l-2 border-l-transparent'
+                        }`}
+                    >
+                      <span className="text-sm text-foreground truncate">{voice.name} ({voice.lang})</span>
+                      {selectedVoiceURI === voice.voiceURI && <Check className="h-4 w-4 text-primary ml-auto flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </section>
           )}
+
+          {/* Accessibility Section */}
           <section aria-labelledby="accessibility-heading">
             <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><Eye className="h-5 w-5 text-primary" /><h3 id="accessibility-heading" className="text-base font-semibold text-foreground">Accessibility</h3></div><Button variant="ghost" size="sm" onClick={resetSettings} aria-label="Reset all accessibility settings to default" className="text-xs text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary"><RotateCcw className="h-3 w-3 mr-1" />Reset</Button></div>
             <div className="space-y-4" role="group" aria-labelledby="accessibility-heading">

@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide default cursor globally — custom canvas cursor is used instead */
+*,
+*::before,
+*::after {
+  cursor: none !important;
+}
+
 @layer base {
   :root {
     /* Dark Healthcare Theme (Default) */
@@ -161,6 +168,166 @@
     --gradient-background: linear-gradient(180deg, hsl(215 40% 8%), hsl(215 45% 14%));
     --shadow-glow: 0 0 40px hsl(200 90% 55% / 0.3);
     --shadow-neon: 0 0 20px hsl(200 90% 55% / 0.5), 0 0 40px hsl(200 90% 55% / 0.3);
+  }
+
+  /* Sunset Warmth Theme */
+  [data-theme="sunset-warmth"] {
+    --background: 280 30% 8%;
+    --foreground: 30 30% 95%;
+    --card: 280 30% 12%;
+    --card-foreground: 30 30% 95%;
+    --popover: 280 30% 10%;
+    --popover-foreground: 30 30% 95%;
+    --primary: 25 95% 55%;
+    --primary-foreground: 280 30% 6%;
+    --secondary: 280 25% 18%;
+    --secondary-foreground: 30 20% 90%;
+    --muted: 280 20% 20%;
+    --muted-foreground: 30 15% 60%;
+    --accent: 270 80% 60%;
+    --accent-foreground: 30 30% 98%;
+    --border: 280 20% 20%;
+    --input: 280 20% 18%;
+    --ring: 25 95% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(25 95% 55%), hsl(350 80% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(270 80% 60%), hsl(300 70% 55%));
+    --gradient-background: linear-gradient(180deg, hsl(280 30% 6%), hsl(280 35% 12%));
+    --shadow-glow: 0 0 40px hsl(25 95% 55% / 0.3);
+    --shadow-neon: 0 0 20px hsl(25 95% 55% / 0.5), 0 0 40px hsl(25 95% 55% / 0.3);
+  }
+
+  /* Forest Green Theme */
+  [data-theme="forest-green"] {
+    --background: 150 30% 6%;
+    --foreground: 120 20% 95%;
+    --card: 150 30% 10%;
+    --card-foreground: 120 20% 95%;
+    --popover: 150 30% 8%;
+    --popover-foreground: 120 20% 95%;
+    --primary: 142 70% 50%;
+    --primary-foreground: 150 30% 6%;
+    --secondary: 150 25% 16%;
+    --secondary-foreground: 120 20% 90%;
+    --muted: 150 20% 18%;
+    --muted-foreground: 120 15% 55%;
+    --accent: 80 80% 55%;
+    --accent-foreground: 150 30% 6%;
+    --border: 150 20% 18%;
+    --input: 150 20% 16%;
+    --ring: 142 70% 50%;
+    --gradient-primary: linear-gradient(135deg, hsl(142 70% 50%), hsl(160 65% 45%));
+    --gradient-accent: linear-gradient(135deg, hsl(80 80% 55%), hsl(100 70% 45%));
+    --gradient-background: linear-gradient(180deg, hsl(150 30% 4%), hsl(150 35% 10%));
+    --shadow-glow: 0 0 40px hsl(142 70% 50% / 0.3);
+    --shadow-neon: 0 0 20px hsl(142 70% 50% / 0.5), 0 0 40px hsl(142 70% 50% / 0.3);
+  }
+
+  /* Arctic Frost Theme (Light) */
+  [data-theme="arctic-frost"] {
+    --background: 215 40% 97%;
+    --foreground: 215 30% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 30% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 30% 12%;
+    --primary: 220 90% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 25% 92%;
+    --secondary-foreground: 215 25% 20%;
+    --muted: 215 20% 90%;
+    --muted-foreground: 215 15% 45%;
+    --accent: 195 90% 50%;
+    --accent-foreground: 0 0% 100%;
+    --border: 215 20% 88%;
+    --input: 215 20% 90%;
+    --ring: 220 90% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(220 90% 55%), hsl(240 80% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(195 90% 50%), hsl(175 80% 45%));
+    --gradient-background: linear-gradient(180deg, hsl(215 40% 97%), hsl(215 35% 93%));
+    --shadow-glow: 0 0 40px hsl(220 90% 55% / 0.2);
+    --shadow-neon: 0 0 20px hsl(220 90% 55% / 0.3), 0 0 40px hsl(220 90% 55% / 0.15);
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 215 30% 12% / 0.08;
+  }
+
+  /* Midnight Gold Theme */
+  [data-theme="midnight-gold"] {
+    --background: 240 30% 5%;
+    --foreground: 45 30% 95%;
+    --card: 240 30% 9%;
+    --card-foreground: 45 30% 95%;
+    --popover: 240 30% 7%;
+    --popover-foreground: 45 30% 95%;
+    --primary: 45 90% 50%;
+    --primary-foreground: 240 30% 5%;
+    --secondary: 240 25% 15%;
+    --secondary-foreground: 45 20% 90%;
+    --muted: 240 20% 17%;
+    --muted-foreground: 45 15% 55%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 240 30% 5%;
+    --border: 240 20% 17%;
+    --input: 240 20% 15%;
+    --ring: 45 90% 50%;
+    --gradient-primary: linear-gradient(135deg, hsl(45 90% 50%), hsl(35 100% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 90% 50%), hsl(15 85% 45%));
+    --gradient-background: linear-gradient(180deg, hsl(240 30% 3%), hsl(240 35% 9%));
+    --shadow-glow: 0 0 40px hsl(45 90% 50% / 0.3);
+    --shadow-neon: 0 0 20px hsl(45 90% 50% / 0.5), 0 0 40px hsl(45 90% 50% / 0.3);
+  }
+
+  /* Rose Garden Theme */
+  [data-theme="rose-garden"] {
+    --background: 340 30% 7%;
+    --foreground: 350 20% 95%;
+    --card: 340 30% 11%;
+    --card-foreground: 350 20% 95%;
+    --popover: 340 30% 9%;
+    --popover-foreground: 350 20% 95%;
+    --primary: 350 85% 60%;
+    --primary-foreground: 340 30% 5%;
+    --secondary: 340 25% 17%;
+    --secondary-foreground: 350 20% 90%;
+    --muted: 340 20% 19%;
+    --muted-foreground: 350 15% 58%;
+    --accent: 330 75% 55%;
+    --accent-foreground: 350 20% 98%;
+    --border: 340 20% 19%;
+    --input: 340 20% 17%;
+    --ring: 350 85% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(350 85% 60%), hsl(330 75% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(310 70% 55%), hsl(290 65% 50%));
+    --gradient-background: linear-gradient(180deg, hsl(340 30% 5%), hsl(340 35% 11%));
+    --shadow-glow: 0 0 40px hsl(350 85% 60% / 0.3);
+    --shadow-neon: 0 0 20px hsl(350 85% 60% / 0.5), 0 0 40px hsl(350 85% 60% / 0.3);
+  }
+
+  /* Lavender Dream Theme (Light) */
+  [data-theme="lavender-dream"] {
+    --background: 270 30% 96%;
+    --foreground: 270 25% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 270 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 25% 15%;
+    --primary: 265 80% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 20% 92%;
+    --secondary-foreground: 270 25% 20%;
+    --muted: 270 15% 90%;
+    --muted-foreground: 270 15% 45%;
+    --accent: 300 60% 55%;
+    --accent-foreground: 0 0% 100%;
+    --border: 270 15% 88%;
+    --input: 270 15% 90%;
+    --ring: 265 80% 58%;
+    --gradient-primary: linear-gradient(135deg, hsl(265 80% 58%), hsl(285 70% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(300 60% 55%), hsl(320 55% 50%));
+    --gradient-background: linear-gradient(180deg, hsl(270 30% 96%), hsl(270 25% 92%));
+    --shadow-glow: 0 0 40px hsl(265 80% 58% / 0.2);
+    --shadow-neon: 0 0 20px hsl(265 80% 58% / 0.3), 0 0 40px hsl(265 80% 58% / 0.15);
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 270 25% 15% / 0.08;
   }
 }
 

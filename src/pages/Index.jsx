@@ -22,6 +22,9 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useCamera } from '@/hooks/useCamera';
 import { useWebSocketChat } from '@/hooks/useWebSocketChat';
 import { useAccessibility } from '@/context/AccessibilityContext';
+import CustomCursor from '@/components/CustomCursor';
+import RobotMascot from '@/components/RobotMascot';
+import MiniAILogo from '@/components/MiniAILogo';
 
 const EMOTION_EMOJIS = {
   happy: '😊',
@@ -182,9 +185,11 @@ const Index = () => {
 
   useEffect(() => {
     if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.emotion) {
-        setEmotion(lastMessage.emotion);
+      // Find the last message that actually has an emotion set
+      // (assistant placeholder messages may not have one yet)
+      const lastWithEmotion = [...messages].reverse().find(m => m.emotion);
+      if (lastWithEmotion) {
+        setEmotion(lastWithEmotion.emotion);
       }
     } else {
       setEmotion('neutral');
@@ -258,7 +263,8 @@ const Index = () => {
   }, [sendMessage]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background cursor-none">
+      <CustomCursor />
       <BreathingExercise isOpen={breathingOpen} onClose={() => setBreathingOpen(false)} />
 
       <CameraFeed
@@ -287,9 +293,7 @@ const Index = () => {
           <header className="glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-2 sm:mb-4 overflow-visible relative z-50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-primary-foreground" />
-                </div>
+                <MiniAILogo size={40} />
                 <div>
                   <h1 className="text-lg font-bold text-primary">Emotion AI</h1>
                   <p className="text-xs text-muted-foreground">Healthcare Assistant</p>
@@ -393,14 +397,8 @@ const Index = () => {
                 <PullToRefreshIndicator pullDistance={pullToRefresh.pullDistance} isRefreshing={pullToRefresh.isRefreshing} progress={pullToRefresh.progress} shouldRefresh={pullToRefresh.shouldRefresh} />
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="text-6xl mb-4">🤖</div>
-                    <h3 className="text-xl font-semibold mb-2 text-primary">Welcome to Emotion AI</h3>
-                    <p className="text-muted-foreground max-w-md mb-4">I'm your emotion-aware AI assistant. Start chatting and I'll understand how you're feeling.</p>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p>🎤 Click the microphone button for voice input</p>
-                      <p>🔊 Hover over messages and click the speaker to hear them</p>
-                      <p>👆 Pull down to refresh the chat</p>
-                    </div>
+                    <RobotMascot size={120} />
+                    <h3 className="text-xl font-semibold mb-2 text-primary select-none">Welcome to Emotion AI</h3>
                   </div>
                 ) : (
                   <>
@@ -446,7 +444,7 @@ const Index = () => {
             </>
           ) : (
             <div className="relative z-0 flex-1 overflow-hidden glass-card rounded-xl sm:rounded-2xl">
-              <EmotionDashboard conversations={conversations} />
+              <EmotionDashboard conversations={conversations} messages={messages} />
             </div>
           )}
         </div>
